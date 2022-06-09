@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import PhotoImage, ttk
 from tkinter import filedialog
+import tkinter.font as tkFont
 
 class Gui:
     archivos = []
@@ -41,11 +42,16 @@ class Gui:
         window.columnconfigure(0, weight=4)
 
         #Creamos una etiqueta que muestra el selector de archivos
-        etqSelFile = ttk.Label(window, text="Seleccionar archivos")
+        #Creamos los fontstyles para darle estilos a la misma
+        fontStyle = tkFont.Font(family="Lucida Grande", size=15)
+        etqSelFile = tk.Label(window, text="Seleccionar archivos", font=fontStyle)
         etqSelFile.grid(column=0, row=1, sticky=tk.W, padx=5, pady=20)
 
-        btSel = ttk.Button(window, text="", command=abrirArchivo)
-        btSel.grid(column=1, row=1, sticky=tk.W, padx=5, pady=20)
+        #Seleccionamos una imagen para poner como botón
+        imgBtn = PhotoImage(file='img/fileBtn.png')
+        #Creamos el botón con la imagen y ponemos borderwidth=0 para que quede redondeado
+        btSel = tk.Button(window, text="", image=imgBtn, borderwidth=0, command=abrirArchivo)
+        btSel.grid(column=0, row=1, sticky=tk.W, padx=200, pady=20)
 
         window.mainloop()
 
