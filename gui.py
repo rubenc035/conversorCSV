@@ -2,17 +2,33 @@ import tkinter as tk
 from tkinter import PhotoImage, ttk
 from tkinter import filedialog
 import tkinter.font as tkFont
+from tkinter import StringVar
+import gestionArchivos
 
 class Gui:
     archivos = []
     altura_ventana = 0
     anchura_ventana = 0
     def __init__(self,altura_ventana,anchura_ventana):
+        
+        def procesarArchivos():
+            gestionArchivos.leerDatos(self.archivos[0])
+ 
+        #Método cargarLista() que crea un listBox con los archivos seleccionados
+        def cargarLista():
+            lista = tk.StringVar(value=self.archivos)
+            listBox = tk.Listbox(window, height=20, width=50, border=0, listvariable=lista)
+
+            listBox.grid(column=0, row=3, sticky=tk.W, padx=5, pady=10)
+
+            procesarArchivos()
 
         #Método que lee los archivos y los guarda en la variable
+        #Una vez que se han seleccionado los archivos, llamamos al método cargarLista()
         def abrirArchivo():
             self.archivos = filedialog.askopenfilenames(initialdir="/", title="Seleccione archivos", filetypes = (('xlsm files','*.xlsm'), ('xls files','*.xls')))
-            
+            cargarLista()
+
         #Creamos una instancia de Tk
         window = tk.Tk()
 
@@ -43,8 +59,8 @@ class Gui:
 
         #Creamos una etiqueta que muestra el selector de archivos
         #Creamos los fontstyles para darle estilos a la misma
-        fontStyle = tkFont.Font(family="Lucida Grande", size=15)
-        etqSelFile = tk.Label(window, text="Seleccionar archivos", font=fontStyle)
+        fuenteEtqSelFile = tkFont.Font(family="Lucida Grande", size=15)
+        etqSelFile = tk.Label(window, text="Seleccionar archivos", font=fuenteEtqSelFile)
         etqSelFile.grid(column=0, row=1, sticky=tk.W, padx=5, pady=20)
 
         #Seleccionamos una imagen para poner como botón
@@ -52,6 +68,10 @@ class Gui:
         #Creamos el botón con la imagen y ponemos borderwidth=0 para que quede redondeado
         btSel = tk.Button(window, text="", image=imgBtn, borderwidth=0, command=abrirArchivo)
         btSel.grid(column=0, row=1, sticky=tk.W, padx=200, pady=20)
+
+        fuenteTextoLista = tkFont.Font(family="Lucida Grande", size=11)
+        textoLista = tk.Label(window, text="Archivos seleccionados", font=fuenteTextoLista)
+        textoLista.grid(column=0, row=2, sticky=tk.W, padx=5, pady=15)
 
         window.mainloop()
 
