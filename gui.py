@@ -4,6 +4,7 @@ from tkinter import filedialog
 import tkinter.font as tkFont
 from tkinter import StringVar
 import gestionArchivos
+from tkinter import messagebox
 
 class Gui:
     archivos = []
@@ -12,16 +13,18 @@ class Gui:
     def __init__(self,altura_ventana,anchura_ventana):
         
         def procesarArchivos():
-            gestionArchivos.leerDatos(self.archivos[0])
- 
+            if len(self.archivos)==0:
+                messagebox.showwarning("Aviso", "Seleccione los archivos")
+            else:
+                gestionArchivos.leerDatos(self.archivos[0])
+                messagebox.showinfo("Proceso", "Todos los archivos se han procesado correctamente")
+    
         #Método cargarLista() que crea un listBox con los archivos seleccionados
         def cargarLista():
             lista = tk.StringVar(value=self.archivos)
             listBox = tk.Listbox(window, height=20, width=50, border=0, listvariable=lista)
 
             listBox.grid(column=0, row=3, sticky=tk.W, padx=5, pady=10)
-
-            procesarArchivos()
 
         #Método que lee los archivos y los guarda en la variable
         #Una vez que se han seleccionado los archivos, llamamos al método cargarLista()
@@ -72,6 +75,10 @@ class Gui:
         fuenteTextoLista = tkFont.Font(family="Lucida Grande", size=11)
         textoLista = tk.Label(window, text="Archivos seleccionados", font=fuenteTextoLista)
         textoLista.grid(column=0, row=2, sticky=tk.W, padx=5, pady=15)
+
+        imgProceso = PhotoImage(file='img/btnProceso.png')
+        btProcesar = tk.Button(window, image=imgProceso, borderwidth=0, command=procesarArchivos)
+        btProcesar.grid(column=0, row=2, sticky=tk.W, padx=300, pady=20)
 
         window.mainloop()
 
