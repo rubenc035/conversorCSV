@@ -5,20 +5,49 @@ import tkinter.font as tkFont
 from tkinter import StringVar
 import gestionArchivos
 from tkinter import messagebox
+import numpy as np
 
 class Gui:
+    listadoAgrupado = []
+    listadoRetorno = []
     archivos = []
+    diccionarioKardex = {}
     altura_ventana = 0
     anchura_ventana = 0
     def __init__(self,altura_ventana,anchura_ventana):
         
+        #Función para llamar a la función de procesar archivos. Si la lista archivos[] está
+        #vacía, lanzaremos un mensaje de aviso para que se seleccionen los achivos
+        #en caso de que contenga algo, se llamará al proceso y luego se mostrará un mensaje
+        # diciendo que todo se ha procesado correctamente  
         def procesarArchivos():
-            if len(self.archivos)==0:
-                messagebox.showwarning("Aviso", "Seleccione los archivos")
-            else:
-                gestionArchivos.leerDatos(self.archivos[0])
-                messagebox.showinfo("Proceso", "Todos los archivos se han procesado correctamente")
-    
+            for archivo in self.archivos:
+                retorno = gestionArchivos.leerDatos(archivo)
+                self.listadoRetorno.append(retorno)
+
+            #Primero añadimos el primer array a listadoAgrupado
+            self.listadoAgrupado = self.listadoRetorno[0]
+            
+            longitud = 1
+            #Iteramos mediante un while si la longitud es mayor que 1
+            while len(self.listadoRetorno) > longitud:
+                np.concatenate((self.listadoAgrupado, self.listadoRetorno[longitud]), axis=0)
+                longitud = longitud + 1
+
+            #Buscamos los valores en el diccionario. Si están repetidos sumamos las cantidades
+            #si no, lo añadimos al mismo
+            for valor in self.listadoAgrupado:
+                if valor[0] in self.diccionarioKardex:
+                    self.diccionarioKardex[valor[0]] = valor[1] + self.diccionarioKardex.get(valor[0])
+                else:
+                    self.diccionarioKardex[valor[0]] = valor[1]
+
+            #Ordenamos el diccionario en otro llamado diccionarioOrdenado
+            diccionarioOrdenado = sorted(self.diccionarioKardex.items())
+
+            print("------comienza el diccionario ordenado----")
+            print(diccionarioOrdenado)
+            
         #Método cargarLista() que crea un listBox con los archivos seleccionados
         def cargarLista():
             lista = tk.StringVar(value=self.archivos)
