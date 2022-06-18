@@ -6,6 +6,7 @@ from tkinter import StringVar
 import gestionArchivos
 from tkinter import messagebox
 import numpy as np
+import csv
 
 class Gui:
     listadoAgrupado = []
@@ -16,38 +17,55 @@ class Gui:
     anchura_ventana = 0
     def __init__(self,altura_ventana,anchura_ventana):
         
+        #Función para guardar la lista ordenada como csv
+        def guardarCsv(diccionario, archivo):
+
+            caracter1 = archivo.rfind('/')+1
+            caracter2 = archivo.rfind('.')
+            nombreArchivo = archivo[caracter1:caracter2]+".csv"
+            ruta = f"C:/Users/Ruben/Documents/PROYECTOS PERSONALES/CONVERSOR_CSV/{nombreArchivo}"
+            with open(ruta, 'w', newline='') as datos:
+                almacenar = csv.writer(datos)
+                almacenar.writerows(diccionario)
+
+            
+
         #Función para llamar a la función de procesar archivos. Si la lista archivos[] está
         #vacía, lanzaremos un mensaje de aviso para que se seleccionen los achivos
         #en caso de que contenga algo, se llamará al proceso y luego se mostrará un mensaje
         # diciendo que todo se ha procesado correctamente  
         def procesarArchivos():
-            for archivo in self.archivos:
-                retorno = gestionArchivos.leerDatos(archivo)
-                self.listadoRetorno.append(retorno)
+            if len(self.archivos) > 0:
+                for archivo in self.archivos:
+                    retorno = gestionArchivos.leerDatos(archivo)
+                    self.listadoRetorno.append(retorno)
 
-            #Primero añadimos el primer array a listadoAgrupado
-            self.listadoAgrupado = self.listadoRetorno[0]
-            
-            longitud = 1
-            #Iteramos mediante un while si la longitud es mayor que 1
-            while len(self.listadoRetorno) > longitud:
-                np.concatenate((self.listadoAgrupado, self.listadoRetorno[longitud]), axis=0)
-                longitud = longitud + 1
+                #Primero añadimos el primer array a listadoAgrupado
+                self.listadoAgrupado = self.listadoRetorno[0]
+                
+                longitud = 1
+                #Iteramos mediante un while si la longitud es mayor que 1
+                while len(self.listadoRetorno) > longitud:
+                    np.concatenate((self.listadoAgrupado, self.listadoRetorno[longitud]), axis=0)
+                    longitud = longitud + 1
 
-            #Buscamos los valores en el diccionario. Si están repetidos sumamos las cantidades
-            #si no, lo añadimos al mismo
-            for valor in self.listadoAgrupado:
-                if valor[0] in self.diccionarioKardex:
-                    self.diccionarioKardex[valor[0]] = valor[1] + self.diccionarioKardex.get(valor[0])
-                else:
-                    self.diccionarioKardex[valor[0]] = valor[1]
+                #Buscamos los valores en el diccionario. Si están repetidos sumamos las cantidades
+                #si no, lo añadimos al mismo
+                for valor in self.listadoAgrupado:
+                    if valor[0] in self.diccionarioKardex:
+                        self.diccionarioKardex[valor[0]] = valor[1] + self.diccionarioKardex.get(valor[0])
+                    else:
+                        self.diccionarioKardex[valor[0]] = valor[1]
 
-            #Ordenamos el diccionario en otro llamado diccionarioOrdenado
-            diccionarioOrdenado = sorted(self.diccionarioKardex.items())
+                #Ordenamos el diccionario en otro llamado diccionarioOrdenado
+                diccionarioOrdenado = sorted(self.diccionarioKardex.items())
 
-            print("------comienza el diccionario ordenado----")
-            print(diccionarioOrdenado)
-            
+                guardarCsv(diccionarioOrdenado,self.archivos[0])
+
+                messagebox.showinfo("Final", "Todos los archivos se han procesado correctamente")
+            else:
+                messagebox.showwarning("Aviso", "Para poder continuar, primero seleccione los archivos")
+
         #Método cargarLista() que crea un listBox con los archivos seleccionados
         def cargarLista():
             lista = tk.StringVar(value=self.archivos)
