@@ -115,7 +115,11 @@ def imprimirListado(resultado,archivo):
     nombreArchivo2 = archivo[caracter1:caracter2]
 
     #ruta = "C:\Users\Ruben\Documents\PROYECTOS PERSONALES\CONVERSOR_CSV"+ "\"+ archivo+ ".txt"
-    ruta = f"C:/Users/Ruben/Documents/PROYECTOS PERSONALES/CONVERSOR_CSV/{nombreArchivo}"
+    
+    #Leemos la linea del archivo donde está cargada la ruta y la combinamos con el nombre del archivo
+    ficheroRuta = open('rttxt.txt', 'r')
+    ruta = ficheroRuta.readline() + nombreArchivo
+    #ruta = f"C:/Users/Ruben/Documents/PROYECTOS PERSONALES/CONVERSOR_CSV/{nombreArchivo}"
     fichero = open(ruta, 'w')
 
     fichero.write(f"Documento de material: {nombreArchivo2}")
@@ -136,6 +140,7 @@ def imprimirListado(resultado,archivo):
         fichero.write('\n')
         fichero.write('________________________________________________________________________________')
 
+
         contador = contador + 1
 
     contador2 = 0
@@ -150,6 +155,7 @@ def imprimirListado(resultado,archivo):
         ))
         fichero.write('\n')
         fichero.write('________________________________________________________________________________')
+
 
         contador2 = contador2 + 1
     

@@ -1,6 +1,6 @@
 from time import time
 import tkinter as tk
-from tkinter import PhotoImage, ttk
+from tkinter import PhotoImage, Toplevel, ttk
 from tkinter import filedialog
 import tkinter.font as tkFont
 from tkinter import StringVar
@@ -22,10 +22,76 @@ class Gui:
     anchura_ventana = 0
     def __init__(self,altura_ventana,anchura_ventana):
         
+        #Función que crea una ventana secundaria para el cambio de rutas
+        def cambioRutas():
+            #Función para cerrar la ventana
+            def cerrarVentana():
+                ventanaRutas.destroy()
+            
+            #Abrimos los archivos correspondientes, cogemos la linea escrita de cada input
+            #reemplazamos las barras invertidas y añadimos una al final para que no de problemas 
+            #al copiar las rutas directamente desde Windows
+            def cambiarRutas():
+                arcTxt = open('rttxt.txt', 'w')
+                arcCsv = open('wttxt.txt', 'w')
+
+                lineaTxtN = inpRutaTxt.get()
+                lineaCsvN = inpRutaCsv.get()
+                lineaTxt = lineaTxtN.replace('\\','/') + '/'
+                lineaCsv = lineaCsvN.replace('\\','/') + '/'
+                
+                arcTxt.writelines(lineaTxt)
+                arcCsv.writelines(lineaCsv)
+                messagebox.showinfo("Final", "Las rutas se han modificado correctamente")
+                cerrarVentana()
+
+            ventanaRutas = Toplevel()
+            ventanaRutas.title("Cambio de rutas principales")
+            #Definimos la altura y anchura de la ventana
+            altura_ventana = 200
+            anchura_ventana = 600
+
+            #Cogemos el alto y ancho de la pantalla en la que estamos trabajando, le restamos la variable correspondiente
+            #y lo dividimos entre 2 con // para obtener un número entero. De esta manera obtendremos la parte que 
+            #ha de quedar por cada lado
+            altura_pantalla = (window.winfo_screenheight() - altura_ventana) // 2
+            anchura_pantalla = (window.winfo_screenwidth() - anchura_ventana) // 2
+
+            #Pasamos primero el tamaño de la ventana y después el lugar en el que queremos colocarla
+            ventanaRutas.geometry(f"{anchura_ventana}x{altura_ventana}")
+            ventanaRutas.geometry(f"+{anchura_pantalla}+{altura_pantalla}")
+            ventanaRutas.resizable(0,0)
+            
+            aXlm = open('rttxt.txt', 'r')
+            aCsv = open('wttxt.txt', 'r')
+            lXlm = aXlm.readline()
+            lCsv = aCsv.readline()
+            
+            etqRutaTxt = tk.Label(ventanaRutas,text="Ruta de los archivos txt")
+            inpRutaTxt = tk.Entry(ventanaRutas,width=80)
+            etqRutaCsv = tk.Label(ventanaRutas,text="Ruta de guardado de los archivos CSV")
+            inpRutaCsv = tk.Entry(ventanaRutas,width=80)
+            btnCancelar = tk.Button(ventanaRutas, text="CANCELAR", command=cerrarVentana)
+            btnCambiar = tk.Button(ventanaRutas, text="CAMBIAR", command=cambiarRutas)
+
+            etqRutaTxt.grid(column=0, row=1, sticky=tk.W, padx=20, pady=5)
+            inpRutaTxt.grid(column=0, row=2, sticky=tk.W, padx=20, pady=5)
+            etqRutaCsv.grid(column=0, row=3, sticky=tk.W, padx=20, pady=5)
+            inpRutaCsv.grid(column=0, row=4, sticky=tk.W, padx=20, pady=5)
+            btnCancelar.grid(column=0, row=5, sticky=tk.W, padx=200, pady=30)
+            btnCambiar.grid(column=0, row=5, sticky=tk.W, padx=300, pady=30)
+
+            inpRutaTxt.insert(0,lXlm)
+            inpRutaCsv.insert(0,lCsv)
+
+        #Función para borrar los archivos de la ruta
         def borrarArchivos():
             for archivo in self.archivos:
                 remove(archivo)
 
+        #Función que para un poco el tiempo para evitar errores, llama a borrarArchivos()
+        #limpia todos los arrays para que se sumen otros involuntariamente
+        #y llama a cargar lista sin ningún argumento para que esta se vacíe
         def restart():  
             time.sleep(3)
             borrarArchivos()
@@ -41,7 +107,10 @@ class Gui:
             caracter1 = archivo.rfind('/')+1
             caracter2 = archivo.rfind('.')
             nombreArchivo = archivo[caracter1:caracter2]+".csv"
-            ruta = f"C:/Users/Ruben/Documents/PROYECTOS PERSONALES/CONVERSOR_CSV/{nombreArchivo}"
+            #Leemos la linea del archivo donde está cargada la ruta y la combinamos con el nombre del archivo
+            ficheroRuta = open('wttxt.txt', 'r')
+            ruta = ficheroRuta.readline() + nombreArchivo
+            #ruta = f"C:/Users/Ruben/Documents/PROYECTOS PERSONALES/CONVERSOR_CSV/{nombreArchivo}"
             with open(ruta, 'w', newline='') as datos:
                 almacenar = csv.writer(datos)
                 almacenar.writerows(diccionario)
@@ -126,6 +195,10 @@ class Gui:
         # (0,4)    (1,4)    (2,4)
         window.columnconfigure(0, weight=1)
         window.columnconfigure(0, weight=4)
+
+        #Creamos un botón para llamar a la ventana secundaria de cambio de rutas
+        btnModificarRuta = tk.Button(window, text="Modificar rutas", borderwidth=0, command=cambioRutas)
+        btnModificarRuta.grid(column=0, row=0, padx=300, pady=5)
 
         #Creamos una etiqueta que muestra el selector de archivos
         #Creamos los fontstyles para darle estilos a la misma
