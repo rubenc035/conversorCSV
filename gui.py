@@ -1,3 +1,4 @@
+from time import time
 import tkinter as tk
 from tkinter import PhotoImage, ttk
 from tkinter import filedialog
@@ -7,6 +8,10 @@ import gestionArchivos
 from tkinter import messagebox
 import numpy as np
 import csv
+import os
+import sys
+import time
+from os import remove
 
 class Gui:
     listadoAgrupado = []
@@ -17,6 +22,19 @@ class Gui:
     anchura_ventana = 0
     def __init__(self,altura_ventana,anchura_ventana):
         
+        def borrarArchivos():
+            for archivo in self.archivos:
+                remove(archivo)
+
+        def restart():  
+            time.sleep(3)
+            borrarArchivos()
+            self.listadoAgrupado.clear()
+            self.listadoRetorno.clear()
+            self.archivos = []
+            self.diccionarioKardex.clear()
+            cargarLista()
+
         #Función para guardar la lista ordenada como csv
         def guardarCsv(diccionario, archivo):
 
@@ -63,6 +81,8 @@ class Gui:
                 guardarCsv(diccionarioOrdenado,self.archivos[0])
 
                 messagebox.showinfo("Final", "Todos los archivos se han procesado correctamente")
+
+                restart()
             else:
                 messagebox.showwarning("Aviso", "Para poder continuar, primero seleccione los archivos")
 

@@ -7,6 +7,10 @@ import os
 import operator
 from collections import OrderedDict 
 from operator import getitem 
+from os import remove
+from subprocess import Popen
+import threading 
+import time
 
 listaFinalKardex = []
 
@@ -61,7 +65,7 @@ def imprimirListado(resultado,archivo):
 
     for valor in listadoKardex:
         if valor[0] in listaKardex:
-            suma = listaKardex[valor[0]].get('cantidad') + valor[3]
+            suma = round(listaKardex[valor[0]].get('cantidad')) + round(valor[3])
             listaKardex[valor[0]] = {
                 'material':valor[0],
                 'texto':valor[1],
@@ -81,7 +85,7 @@ def imprimirListado(resultado,archivo):
 
     for valor2 in listadoNotKardex:
         if valor2[0] in listaNotKardex:
-            suma = listaNotKardex[valor2[0]].get('cantidad') + valor2[3]
+            suma = round(listaNotKardex[valor2[0]].get('cantidad')) + round(valor2[3])
             listaNotKardex[valor2[0]] = {
                 'material':valor2[0],
                 'texto':valor2[1],
@@ -117,12 +121,12 @@ def imprimirListado(resultado,archivo):
     fichero.write(f"Documento de material: {nombreArchivo2}")
     fichero.write('\n')
     fichero.write('\n')
-    fichero.write ("{:<12} {:<50} {:<10} {:<10} {:<5}".format('Material','Texto','Ubicación','Cantidad','UND'))
+    fichero.write ("{:<10} {:<45} {:<8} {:<9} {:<3}".format('Material','Texto','Ubicación','Cantidad','UND'))
     fichero.write('\n')
     contador = 0
     while contador < len(diccionarioOrdenado):
         fichero.write('\n')
-        fichero.write ("{:<12} {:<50} {:<10} {:<10} {:<5}".format(
+        fichero.write ("{:<10} {:<45} {:<8} {:<9} {:<3}".format(
             diccionarioOrdenado[contador][1].get('material'),
             diccionarioOrdenado[contador][1].get('texto'),
             diccionarioOrdenado[contador][1].get('ubicacion'),
@@ -130,14 +134,14 @@ def imprimirListado(resultado,archivo):
             diccionarioOrdenado[contador][1].get('und'),
         ))
         fichero.write('\n')
-        fichero.write('__________________________________________________________________________________________')
+        fichero.write('________________________________________________________________________________')
 
         contador = contador + 1
 
     contador2 = 0
     while contador2 < len(diccionarioOrdenado2):
         fichero.write('\n')
-        fichero.write ("{:<12} {:<50} {:<10} {:<10} {:<5}".format(
+        fichero.write ("{:<10} {:<45} {:<8} {:<9} {:<3}".format(
             diccionarioOrdenado2[contador2][1].get('material'),
             diccionarioOrdenado2[contador2][1].get('texto'),
             diccionarioOrdenado2[contador2][1].get('ubicacion'),
@@ -145,10 +149,19 @@ def imprimirListado(resultado,archivo):
             diccionarioOrdenado2[contador2][1].get('und'),
         ))
         fichero.write('\n')
-        fichero.write('__________________________________________________________________________________________')
+        fichero.write('________________________________________________________________________________')
 
         contador2 = contador2 + 1
     
     fichero.close()
+    
+    #Imprimimos el archivo por la impresora predeterminada
+    os.startfile(ruta, "print")
+
+    #Evitamos errores tales como el archivo no existe con un time.sleep
+    time.sleep(5)
+
+    #Eliminamos el archivo
+    os.remove(ruta)
     #print(len(diccionarioOrdenado))
     #print(diccionarioOrdenado[0][1].get('material'))
