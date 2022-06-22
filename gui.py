@@ -1,10 +1,12 @@
 from itertools import chain
+from re import S
 from time import time
 import tkinter as tk
 from tkinter import PhotoImage, Toplevel, ttk
 from tkinter import filedialog
 import tkinter.font as tkFont
 from tkinter import StringVar
+from turtle import width
 import gestionArchivos
 from tkinter import messagebox
 import numpy as np
@@ -13,6 +15,7 @@ import os
 import sys
 import time
 from os import remove
+from tkinter import scrolledtext
 
 class Gui:
     listadoAgrupado = []
@@ -28,8 +31,8 @@ class Gui:
             ventanaAcerca = Toplevel()
             ventanaAcerca.title("Acerca de")
             #Definimos la altura y anchura de la ventana
-            altura_ventana = 200
-            anchura_ventana = 350
+            altura_ventana = 300
+            anchura_ventana = 450
 
             #Cogemos el alto y ancho de la pantalla en la que estamos trabajando, le restamos la variable correspondiente
             #y lo dividimos entre 2 con // para obtener un número entero. De esta manera obtendremos la parte que 
@@ -42,9 +45,62 @@ class Gui:
             ventanaAcerca.geometry(f"+{anchura_pantalla}+{altura_pantalla}")
             ventanaAcerca.resizable(0,0)
 
+            et1 = tk.Label(ventanaAcerca, text="Versión: 1.0")
+            et2 = tk.Label(ventanaAcerca, text="Commit: 7b252945d3295818594c389f57569edbeff3fc9b")
+            et3 = tk.Label(ventanaAcerca, text="Date: 22/06/2022")
+            et4 = tk.Label(ventanaAcerca, text="Python: Python 3.10.2")
+            et5 = tk.Label(ventanaAcerca, text="Nombre del sistema operativo: Microsoft Windows 10")
+            et6 = tk.Label(ventanaAcerca, text="Versión del sistema operativo: 10.0.19042 N/D Compilación 19042")
+            et7 = tk.Label(ventanaAcerca, text="Esta aplicación ha sido desarrollada y es propiedad de Rubén Cordero Rol", font=('Helvetica', 8, 'bold'))
+            et8 = tk.Label(ventanaAcerca, text="Queda prohibida cualquier alteración y/o uso indebido del código",font=('Helvetica', 8, 'bold'))
+            et9 = tk.Label(ventanaAcerca, text="sin consentimiento del autor",font=('Helvetica', 8, 'bold'))
+            
+            et1.grid(column=0, row=0,sticky=tk.W,padx=5,pady=5)
+            et2.grid(column=0, row=1,sticky=tk.W,padx=5,pady=5)
+            et3.grid(column=0, row=2,sticky=tk.W,padx=5,pady=5)
+            et4.grid(column=0, row=3,sticky=tk.W,padx=5,pady=5)
+            et5.grid(column=0, row=4,sticky=tk.W,padx=5,pady=5)
+            et6.grid(column=0, row=5,sticky=tk.W,padx=5,pady=5)
+            et7.grid(column=0, row=6,sticky=tk.W,padx=5,pady=8)
+            et8.grid(column=0, row=7,sticky=tk.W,padx=5,pady=5)
+            et9.grid(column=0, row=8,sticky=tk.W,padx=5,pady=5)
+
         #Función que crea la ventana Acerca de
         def ayuda():
-            pass
+            ventanaAyuda = Toplevel()
+            ventanaAyuda.title("Ayuda")
+            #Definimos la altura y anchura de la ventana
+            altura_ventana = 300
+            anchura_ventana = 450
+
+            #Cogemos el alto y ancho de la pantalla en la que estamos trabajando, le restamos la variable correspondiente
+            #y lo dividimos entre 2 con // para obtener un número entero. De esta manera obtendremos la parte que 
+            #ha de quedar por cada lado
+            altura_pantalla = (window.winfo_screenheight() - altura_ventana) // 2
+            anchura_pantalla = (window.winfo_screenwidth() - anchura_ventana) // 2
+
+            #Pasamos primero el tamaño de la ventana y después el lugar en el que queremos colocarla
+            ventanaAyuda.geometry(f"{anchura_ventana}x{altura_ventana}")
+            ventanaAyuda.geometry(f"+{anchura_pantalla}+{altura_pantalla}")
+            ventanaAyuda.resizable(0,0)
+
+            parrafo = f"Esta aplicación ha sido creada para facilitar la \nconversión de archivos XLM y XLMS a formato CSV"
+            parrafo2 = f"\n\nSu uso es fácil e intuitivo, pudiendo lograr una \ngrupación de archivos de manera rápida"
+            parrafo3 = f"\n\n1. Primero haremos click en el botón con el \n   símbolo + y seleccionaremos los archivos"
+            parrafo4 = f"\n    1.1. Si queremos agrupar varias órdenes, \n         seleccionaremos todas las que queramos"
+            parrafo5 = f"\n\n2. Una vez selecc ionados los archivos veremos \n   que aparecen debajo en una lista"
+            parrafo6 = f"\n\n3. Pulsaremos el botón procesar para que se \n   ejecute el programa"
+            parrafada = parrafo+parrafo2+parrafo3+parrafo4+parrafo5+parrafo6
+
+            texto = scrolledtext.ScrolledText(
+                ventanaAyuda,
+                width=50,
+                height=80
+            )
+
+            texto.insert(tk.INSERT,parrafada)
+
+            texto.grid(column=0, row=0, sticky=tk.W, padx=5, pady=5)
         
         #función para crear una ventana de login y acceder al cambio de rutas
         def ventanaLogin():
@@ -197,16 +253,19 @@ class Gui:
                 almacenar = csv.writer(datos)
                 almacenar.writerows(diccionario)
 
-            
-
         #Función para llamar a la función de procesar archivos. Si la lista archivos[] está
         #vacía, lanzaremos un mensaje de aviso para que se seleccionen los achivos
         #en caso de que contenga algo, se llamará al proceso y luego se mostrará un mensaje
         # diciendo que todo se ha procesado correctamente  
+        #También estamos pasando las variables impresion y etiquetas que reciben el valor
+        #de los checkboxes correspondientes
         def procesarArchivos():
+
             if len(self.archivos) > 0:
+                impresion = controlImpresion.get()
+                etiquetas = controlEtiquetas.get()
                 for archivo in self.archivos:
-                    retorno = gestionArchivos.leerDatos(archivo)
+                    retorno = gestionArchivos.leerDatos(archivo, impresion, etiquetas)
                     self.listadoRetorno.append(retorno)
 
                 #Primero añadimos el primer array a listadoAgrupado
@@ -240,9 +299,9 @@ class Gui:
         #Método cargarLista() que crea un listBox con los archivos seleccionados
         def cargarLista():
             lista = tk.StringVar(value=self.archivos)
-            listBox = tk.Listbox(window, background="white",height=20, width=60, border=0, listvariable=lista)
+            listBox = tk.Listbox(window, background="white",height=15, width=60, border=0, listvariable=lista)
 
-            listBox.grid(column=0, row=3, sticky=tk.W, padx=5, pady=10)
+            listBox.grid(column=0, row=4, sticky=tk.W, padx=5, pady=10)
 
         #Método que lee los archivos y los guarda en la variable
         #Una vez que se han seleccionado los archivos, llamamos al método cargarLista()
@@ -298,7 +357,7 @@ class Gui:
         #Creamos los fontstyles para darle estilos a la misma
         fuenteEtqSelFile = tkFont.Font(family="Lucida Grande", size=15)
         etqSelFile = tk.Label(window, text="Seleccionar archivos", font=fuenteEtqSelFile)
-        etqSelFile.grid(column=0, row=1,columnspan=2, sticky=tk.W, padx=5, pady=20)
+        etqSelFile.grid(column=0, row=1, sticky=tk.W, padx=5, pady=20)
 
         #Seleccionamos una imagen para poner como botón
         imgBtn = PhotoImage(file='img/fileBtn.png')
@@ -308,11 +367,30 @@ class Gui:
 
         fuenteTextoLista = tkFont.Font(family="Lucida Grande", size=11)
         textoLista = tk.Label(window, text="Archivos seleccionados", font=fuenteTextoLista)
-        textoLista.grid(column=0, row=2, sticky=tk.W, padx=5, pady=15)
+        textoLista.grid(column=0, row=3, sticky=tk.W, padx=5, pady=15)
 
         imgProceso = PhotoImage(file='img/btnProceso.png')
         btProcesar = tk.Button(window, image=imgProceso, borderwidth=0, command=procesarArchivos)
-        btProcesar.grid(column=0, row=2, columnspan=2,sticky=tk.W, padx=300, pady=20)
+        btProcesar.grid(column=0, row=3,sticky=tk.W, padx=300, pady=20)
+
+        #Variable de control para el 0 o 1 de la impresión. Ponemos el value=1 para que salga 
+        #marcado por defecto
+        controlImpresion = tk.IntVar(value=1)
+
+        #etqImprimir = tk.Label(window, text="Imprimir archivos")
+        #Creamos un checkButton para imprimir que de 1 con True y 0 con False
+        btnImprimir = tk.Checkbutton(window,text="Imprimir vales", width=10, height=5, onvalue=1, offvalue=0, variable=controlImpresion)
+
+        #etqImprimir.grid(column=0, row=2, sticky=tk.W, padx=70, pady=5)
+        btnImprimir.grid(column=0, row=2,sticky=tk.W, padx=5, pady=5)
+
+        controlEtiquetas = tk.IntVar(value=1)
+        #etqEtiquetas = tk.Label(window, text="Imprimir etiquetas")
+        btnEtiquetas = tk.Checkbutton(window, text="Imprimir etiquetas",width=15, height=5, onvalue=1, offvalue=0, variable=controlEtiquetas)
+        
+
+        #etqEtiquetas.grid(column=0, row=2, sticky=tk.W, padx=270, pady=5)
+        btnEtiquetas.grid(column=0, row=2,sticky=tk.W, padx=200, pady=5, )
 
         window.mainloop()
 

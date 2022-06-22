@@ -14,12 +14,13 @@ import time
 
 listaFinalKardex = []
 
-def leerDatos(archivo):
+def leerDatos(archivo, impresion, etiquetas):
 
     #Leemos el archivo
     resultado = pd.read_excel(archivo)
     
-    imprimirListado(resultado,archivo)
+    if impresion == 1:
+        imprimirListado(resultado,archivo)
     
     #Filtramos por los elementos que estén ubicados en KARDEX
     inKardex = resultado['Ubicación'] == 'KARDEX'
