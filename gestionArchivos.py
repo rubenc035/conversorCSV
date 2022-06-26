@@ -11,17 +11,20 @@ from os import remove
 from subprocess import Popen
 import threading 
 import time
+import socket
+from tkinter import messagebox
+
 
 listaFinalKardex = []
 
-def leerDatos(archivo, impresion, etiquetas):
+def leerDatos(archivo, impresion, etiquetas, impresora):
 
     #Leemos el archivo
     resultado = pd.read_excel(archivo)
     
     if impresion == 1:
-        imprimirListado(resultado,archivo)
-    
+        imprimirListado(resultado,archivo,etiquetas, impresora)
+
     #Filtramos por los elementos que estén ubicados en KARDEX
     inKardex = resultado['Ubicación'] == 'KARDEX'
 
@@ -40,9 +43,31 @@ def leerDatos(archivo, impresion, etiquetas):
 
     return listaFinalKardex
 
+#############################################################################
+#A REVISAR EL CÓDIGO. PARTE LENTA. SI SE PONE MENOS DE LOS 0.4 MILISEGUNDOS VA MAL
+#############################################################################
+def imprimirEtiquetasZebra(diccionarioOrdenado):
+    try:
+        mysocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)         
+        host = "127.0.0.1" 
+        port = 9100  
+        mysocket.connect((host, port)) #connecting to hostytes  
+        contador = 0
+        while contador < len(diccionarioOrdenado):
+
+            elm = diccionarioOrdenado[contador][1].get('material')
+            cadena = f"^XA^FO25,60^A0,60^FD{elm}^FS^XZ" 
+            mysocket.send(cadena.encode())#using bytes  
+            contador = contador + 1  
+            time.sleep(0.4)  
+    except:
+        messagebox.showerror("Error","No se puede conectar con la impresora Zebra")
+    
+    mysocket.close() #closing connection
+
 #Función para imprimir un archivo con el nombre del archivo y los datos ordenados
 #KARDEX aparecerá primero ordenado de la A a la Z y el resto ordenado por ubicación
-def imprimirListado(resultado,archivo):
+def imprimirListado(resultado,archivo,etiquetas,impresora):
     listaKardex = {}
     listaNotKardex = {}
 
@@ -109,7 +134,6 @@ def imprimirListado(resultado,archivo):
     #Ordenamos el diccionario multidimensional
     diccionarioOrdenado2 = sorted(listaNotKardex.items(), key = lambda x: x[1]['ubicacion'])
 
-
     caracter1 = archivo.rfind('/')+1
     caracter2 = archivo.rfind('.')
     nombreArchivo = archivo[caracter1:caracter2]+".txt"
@@ -160,6 +184,9 @@ def imprimirListado(resultado,archivo):
 
         contador2 = contador2 + 1
     
+    if etiquetas == 1 and impresora == "Zebra":
+        imprimirEtiquetasZebra(diccionarioOrdenado)
+
     fichero.close()
     
     #Imprimimos el archivo por la impresora predeterminada

@@ -264,8 +264,9 @@ class Gui:
             if len(self.archivos) > 0:
                 impresion = controlImpresion.get()
                 etiquetas = controlEtiquetas.get()
+                impresora = combo.get()
                 for archivo in self.archivos:
-                    retorno = gestionArchivos.leerDatos(archivo, impresion, etiquetas)
+                    retorno = gestionArchivos.leerDatos(archivo, impresion, etiquetas, impresora)
                     self.listadoRetorno.append(retorno)
 
                 #Primero añadimos el primer array a listadoAgrupado
@@ -390,7 +391,16 @@ class Gui:
         
 
         #etqEtiquetas.grid(column=0, row=2, sticky=tk.W, padx=270, pady=5)
-        btnEtiquetas.grid(column=0, row=2,sticky=tk.W, padx=200, pady=5, )
+        btnEtiquetas.grid(column=0, row=2,sticky=tk.W, padx=200, pady=5)
+
+        combo = ttk.Combobox(
+            state="readonly",
+            values=["Zebra","Appli"],
+            width=50
+        )
+
+        combo.set("Zebra")
+        combo.grid(column=0, row=2,sticky=tk.W, padx=370, pady=5)
 
         window.mainloop()
 
